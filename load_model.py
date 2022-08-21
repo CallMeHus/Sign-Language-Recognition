@@ -231,7 +231,7 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 # initalize the ResNet 18 version of this model
 # model = R2Plus1DClassifier(num_classes=num_classes, layer_sizes=[2, 2, 2, 2]).to(device)
-model = R2Plus1DClassifier(num_classes=num_classes, layer_sizes=[2, 2, 2, 2]).to(device)
-model_load = torch.load("class10_1_50_model_data.pt",map_location=torch.device(device))
-model.load_state_dict(model_load['state_dict'])
+model = R2Plus1DClassifier(num_classes=num_classes, layer_sizes=[2, 2, 2, 2]).to(device) # Defining the model
+model_load = torch.load("class10_1_50_model_data.pt",map_location=torch.device(device)) # Loading the saved model dictionary
+model.load_state_dict(model_load['state_dict']) # Assigning the saved model from words_training.py to the defined model
 print("Model has been loaded")

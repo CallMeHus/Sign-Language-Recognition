@@ -15,7 +15,7 @@ import time
 import math
 import json
 
-
+# Defining the convolutional layers for Spatio Temporal Neural Network
 class SpatioTemporalConv(nn.Module):
     r"""Applies a factored 3D convolution over an input signal composed of several input
     planes with distinct spatial and time axes, by performing a 2D convolution over the
@@ -76,7 +76,7 @@ class SpatioTemporalConv(nn.Module):
         x = self.temporal_conv(x)
         return x
 
-
+# Defining the Residual Block for Spatio Temporal Neural Network
 class SpatioTemporalResBlock(nn.Module):
     r"""Single block for the ResNet network. Uses SpatioTemporalConv in
         the standard ResNet block layout (conv->batchnorm->ReLU->conv->batchnorm->sum->ReLU)
@@ -128,7 +128,7 @@ class SpatioTemporalResBlock(nn.Module):
 
         return self.outrelu(x + res)
 
-
+# Defining the Residual layers for Spatio Temporal Neural Network
 class SpatioTemporalResLayer(nn.Module):
     r"""Forms a single layer of the ResNet network, with a number of repeating
     blocks of same output size stacked on top of each other
@@ -163,7 +163,7 @@ class SpatioTemporalResLayer(nn.Module):
 
         return x
 
-
+# Defining the full network architecture for the model
 class R2Plus1DNet(nn.Module):
     r"""Forms the overall ResNet feature extractor by initializng 5 layers, with the number of blocks in
     each layer set by layer_sizes, and by performing a global average pool at the end producing a
@@ -201,7 +201,7 @@ class R2Plus1DNet(nn.Module):
 
         return x.view(-1, 512)
 
-
+# Defining the output layer
 class R2Plus1DClassifier(nn.Module):
     r"""Forms a complete ResNet classifier producing vectors of size num_classes, by initializng 5 layers,
     with the number of blocks in each layer set by layer_sizes, and by performing a global average pool
@@ -226,7 +226,7 @@ class R2Plus1DClassifier(nn.Module):
 
         return x
 
-
+# Defining the classes and label map to int - line 238
 label_map = dict()
 all_argv = sys.argv
 
@@ -239,7 +239,7 @@ with open("label_to_int.json", "w") as f:
 sequence_length = int(all_argv[-1])
 batch = int(all_argv[1])
 
-
+# Defining a function for preparing the dataset for training and validation
 def prepare_data_sample(np_array, action, sequence_length, DATA_PATH, sequences, labels):
     for sequence in np_array:
         window = []
@@ -249,7 +249,7 @@ def prepare_data_sample(np_array, action, sequence_length, DATA_PATH, sequences,
         sequences.append(window)
         labels.append(label_map[action])
 
-
+# Preparing the dataset for training and validation - line 276
 sequences, labels = [], []
 X_train = []
 Y_train = []
@@ -275,6 +275,7 @@ np.save("Y_train.npy", Y_train)
 np.save("X_val.npy", X_val)
 np.save("Y_val.npy", Y_val)
 
+# Creating the dataloader
 train_dataloader = DataLoader(TensorDataset(torch.Tensor(X_train), torch.Tensor(Y_train)), batch_size=batch,
                               shuffle=True)
 val_dataloader = DataLoader(TensorDataset(torch.Tensor(X_val), torch.Tensor(Y_val)), batch_size=batch)
@@ -284,7 +285,7 @@ dataloaders = {'train': train_dataloader, 'val': val_dataloader}
 dataset_sizes = {x: len(dataloaders[x].dataset) for x in ['train', 'val']}
 print(dataset_sizes)
 
-# %%
+# Defining the model saving path, number classes and device
 save = True
 model_path = f'class10_{batch}_{sequence_length}_model_data.pt'
 
@@ -298,18 +299,14 @@ print("Device being used:", device)
 
 # initalize the ResNet 18 version of this model
 # model = R2Plus1DClassifier(num_classes=num_classes, layer_sizes=[2, 2, 2, 2]).to(device)
-model = R2Plus1DClassifier(num_classes=num_classes, layer_sizes=[2, 2, 2, 2]).to(device)
-
-# criterion = nn.CrossEntropyLoss() # standard crossentropy loss for classification
-# optimizer = optim.SGD(model.parameters(), lr=0.01)  # hyperparameters as given in paper sec 4.1
-# scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=10, gamma=0.1)  # the scheduler divides the lr by 10 every 10 epochs
-
+model = R2Plus1DClassifier(num_classes=num_classes, layer_sizes=[2, 2, 2, 2]).to(device) # Creating the model
 
 criterion = nn.CrossEntropyLoss()  # standard crossentropy loss for classification
 optimizer = optim.Adam(model.parameters(), lr=0.0001)  # hyperparameters as given in paper sec 4.1
 scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=5,
                                       gamma=0.1)  # the scheduler divides the lr by 10 every 10 epochs
 
+# Below code is for training and validation
 epoch_resume = 0
 num_epochs = 100
 max_val_score = 0
