@@ -2,7 +2,7 @@ import logging
 import threading
 from pathlib import Path
 from typing import List, NamedTuple
-from training import model
+from load_model import model
 import os
 
 try:
