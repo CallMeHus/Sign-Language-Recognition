@@ -1,0 +1,4 @@
+*.pt filter=lfs diff=lfs merge=lfs -text
+variables.* filter=lfs diff=lfs merge=lfs -text
+ASL_Weight/variables/variables.* filter=lfs diff=lfs merge=lfs -text
+class10_1_50_model_data.pt filter=lfs diff=lfs merge=lfs -text
